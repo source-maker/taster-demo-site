@@ -15,7 +15,7 @@ export async function GET(
 
   const { jobId } = await params;
 
-  const [job] = await db
+  const [job] = await db()
     .select()
     .from(jobs)
     .where(eq(jobs.id, jobId))

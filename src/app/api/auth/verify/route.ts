@@ -20,10 +20,10 @@ export async function POST(req: NextRequest) {
   }
 
   // Mark user as verified
-  await db.update(users).set({ verified: true }).where(eq(users.email, normalizedEmail));
+  await db().update(users).set({ verified: true }).where(eq(users.email, normalizedEmail));
 
   // Get user
-  const [user] = await db.select().from(users).where(eq(users.email, normalizedEmail)).limit(1);
+  const [user] = await db().select().from(users).where(eq(users.email, normalizedEmail)).limit(1);
   if (!user) {
     return NextResponse.json({ error: "ユーザーが見つかりません" }, { status: 404 });
   }

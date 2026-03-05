@@ -1,9 +1,11 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY);
+}
 
 export async function sendVerificationCode(email: string, code: string) {
-  await resend.emails.send({
+  await getResend().emails.send({
     from: "Taster Demo <onboarding@resend.dev>",
     to: email,
     subject: "認証コード - Taster Demo",

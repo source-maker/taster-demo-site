@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
 
   // Check daily quota
   const today = new Date().toISOString().split("T")[0];
-  const [quota] = await db
+  const [quota] = await db()
     .select()
     .from(quotas)
     .where(and(eq(quotas.userId, session.userId), eq(quotas.date, today)))
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     ? { url, maxPages: maxPages || 50, maxDepth: maxDepth || 3 }
     : { repoUrl, framework };
 
-  const [job] = await db.insert(jobs).values({
+  const [job] = await db().insert(jobs).values({
     userId: session.userId,
     command: "generate",
     method,
@@ -47,12 +47,12 @@ export async function POST(req: NextRequest) {
 
   // Update quota
   if (quota) {
-    await db
+    await db()
       .update(quotas)
       .set({ generationsUsed: sql`${quotas.generationsUsed} + 1` })
       .where(eq(quotas.id, quota.id));
   } else {
-    await db.insert(quotas).values({
+    await db().insert(quotas).values({
       userId: session.userId,
       date: today,
       generationsUsed: 1,

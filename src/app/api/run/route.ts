@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Verify the generate job belongs to this user and is completed
-  const [generateJob] = await db
+  const [generateJob] = await db()
     .select()
     .from(jobs)
     .where(eq(jobs.id, generateJobId))
@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Get test cases for this generate job
-  const cases = await db
+  const cases = await db()
     .select()
     .from(testCases)
     .where(eq(testCases.jobId, generateJobId));
@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Create run job
-  const [job] = await db.insert(jobs).values({
+  const [job] = await db().insert(jobs).values({
     userId: session.userId,
     command: "run",
     input: { generateJobId, caseIds: cases.map((c) => c.caseId) },

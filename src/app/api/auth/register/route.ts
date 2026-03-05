@@ -15,9 +15,9 @@ export async function POST(req: NextRequest) {
   const normalizedEmail = email.trim().toLowerCase();
 
   // Upsert user
-  const existing = await db.select().from(users).where(eq(users.email, normalizedEmail)).limit(1);
+  const existing = await db().select().from(users).where(eq(users.email, normalizedEmail)).limit(1);
   if (existing.length === 0) {
-    await db.insert(users).values({ email: normalizedEmail });
+    await db().insert(users).values({ email: normalizedEmail });
   }
 
   // Generate and store verification code
