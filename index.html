@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Taster - E2E Test Management Tool</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="container">
+      <div class="logo">Taster</div>
+      <nav class="nav">
+        <a href="#features">Features</a>
+        <a href="#demo">Demo</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#ai-generation">AI Generation</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <h1>Taster</h1>
+      <p class="hero-subtitle">Excel-driven E2E Test Management Tool</p>
+      <p class="hero-desc">
+        Excel で記載されたテストケースを Datadog Synthetics / Playwright に登録・実行し、結果を一元管理。<br>
+        AI によるテストケース自動生成も対応。
+      </p>
+      <div class="hero-actions">
+        <a href="#demo" class="btn btn-primary">Demo を試す</a>
+        <a href="#architecture" class="btn btn-secondary">Architecture</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section id="features" class="section">
+    <div class="container">
+      <h2>Features</h2>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-icon">&#128221;</div>
+          <h3>Excel ベースのテスト管理</h3>
+          <p>TestCases / Steps / InputData シートでテストケースを定義。非エンジニアでも編集可能。</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#128736;</div>
+          <h3>マルチプロバイダー</h3>
+          <p>Datadog Synthetics API と Playwright の2つのプロバイダーに自動振り分け。</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#129302;</div>
+          <h3>AI テストケース生成</h3>
+          <p>サイトクローリング / リポジトリ解析から AI がテストケースを自動生成。</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#128200;</div>
+          <h3>結果の時系列管理</h3>
+          <p>テスト結果をタイムスタンプ付きディレクトリに JSON 形式で保存・追跡。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Demo -->
+  <section id="demo" class="section section-dark">
+    <div class="container">
+      <h2>Interactive Demo</h2>
+      <p class="section-desc">Taster の3つのコマンドをインタラクティブに体験できます。</p>
+
+      <!-- Step Navigation -->
+      <div class="demo-steps">
+        <button class="demo-step active" data-step="1">
+          <span class="step-num">1</span>
+          <span class="step-label">init</span>
+        </button>
+        <div class="step-connector"></div>
+        <button class="demo-step" data-step="2">
+          <span class="step-num">2</span>
+          <span class="step-label">read-case</span>
+        </button>
+        <div class="step-connector"></div>
+        <button class="demo-step" data-step="3">
+          <span class="step-num">3</span>
+          <span class="step-label">run-case</span>
+        </button>
+      </div>
+
+      <!-- Step 1: init -->
+      <div class="demo-panel" id="panel-1">
+        <div class="demo-layout">
+          <div class="demo-config">
+            <h3>taster init</h3>
+            <p>プロジェクトを初期化し、テンプレートから実行環境を作成します。</p>
+            <div class="form-group">
+              <label>Project Name</label>
+              <input type="text" id="init-name" value="my-app" placeholder="e.g. my-app">
+            </div>
+            <div class="form-group">
+              <label>Staging URL</label>
+              <input type="text" id="init-url" value="https://staging.my-app.com" placeholder="e.g. https://staging.example.com">
+            </div>
+            <div class="form-group">
+              <label>Datadog API Key <span class="optional">(optional)</span></label>
+              <input type="password" id="init-dd-key" value="abc123" placeholder="Your Datadog API Key">
+            </div>
+            <button class="btn btn-primary" id="btn-init">Run init</button>
+          </div>
+          <div class="demo-terminal">
+            <div class="terminal">
+              <div class="terminal-header">
+                <span class="terminal-dot red"></span>
+                <span class="terminal-dot yellow"></span>
+                <span class="terminal-dot green"></span>
+                <span class="terminal-title">Terminal</span>
+              </div>
+              <div class="terminal-body" id="terminal-1">
+                <div class="terminal-line prompt">$ npx taster init my-app --url https://staging.my-app.com</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: read-case -->
+      <div class="demo-panel hidden" id="panel-2">
+        <div class="demo-layout">
+          <div class="demo-config">
+            <h3>taster read-case</h3>
+            <p>Excel テストケースを読み取り、Datadog / Playwright に登録します。</p>
+            <div class="form-group">
+              <label>Provider</label>
+              <select id="read-provider">
+                <option value="all">All (Datadog + Playwright)</option>
+                <option value="datadog">Datadog only</option>
+                <option value="playwright">Playwright only</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>
+                <input type="checkbox" id="read-dryrun"> Dry Run (パース結果のみ表示)
+              </label>
+            </div>
+            <button class="btn btn-primary" id="btn-read">Run read-case</button>
+
+            <!-- Excel Preview -->
+            <div class="excel-preview">
+              <h4>Excel Preview: sample.xlsx</h4>
+              <div class="excel-table-wrapper">
+                <table class="excel-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Name</th>
+                      <th>Provider</th>
+                      <th>Priority</th>
+                      <th>URL</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>TC-001</td><td>Login Page Display</td><td>datadog</td><td>high</td><td>/login</td></tr>
+                    <tr><td>TC-002</td><td>Login Flow</td><td>playwright</td><td>high</td><td>/login</td></tr>
+                    <tr><td>TC-003</td><td>Top Page Display</td><td>datadog</td><td>medium</td><td>/</td></tr>
+                    <tr><td>TC-004</td><td>User Registration</td><td>playwright</td><td>medium</td><td>/register</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="demo-terminal">
+            <div class="terminal">
+              <div class="terminal-header">
+                <span class="terminal-dot red"></span>
+                <span class="terminal-dot yellow"></span>
+                <span class="terminal-dot green"></span>
+                <span class="terminal-title">Terminal</span>
+              </div>
+              <div class="terminal-body" id="terminal-2">
+                <div class="terminal-line prompt">$ npx taster read-case --project my-app</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: run-case -->
+      <div class="demo-panel hidden" id="panel-3">
+        <div class="demo-layout">
+          <div class="demo-config">
+            <h3>taster run-case</h3>
+            <p>登録済みテストを実行し、結果を収集します。</p>
+            <div class="form-group">
+              <label>Provider</label>
+              <select id="run-provider">
+                <option value="all">All</option>
+                <option value="datadog">Datadog only</option>
+                <option value="playwright">Playwright only</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Test Case</label>
+              <select id="run-case">
+                <option value="all">All test cases</option>
+                <option value="TC-001">TC-001: Login Page Display</option>
+                <option value="TC-002">TC-002: Login Flow</option>
+                <option value="TC-003">TC-003: Top Page Display</option>
+                <option value="TC-004">TC-004: User Registration</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>
+                <input type="checkbox" id="run-headed"> Headed mode (Playwright)
+              </label>
+            </div>
+            <button class="btn btn-primary" id="btn-run">Run run-case</button>
+          </div>
+          <div class="demo-terminal">
+            <div class="terminal">
+              <div class="terminal-header">
+                <span class="terminal-dot red"></span>
+                <span class="terminal-dot yellow"></span>
+                <span class="terminal-dot green"></span>
+                <span class="terminal-title">Terminal</span>
+              </div>
+              <div class="terminal-body" id="terminal-3">
+                <div class="terminal-line prompt">$ npx taster run-case --project my-app</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Result Dashboard (appears after run-case) -->
+      <div class="result-dashboard hidden" id="result-dashboard">
+        <h3>Test Results Dashboard</h3>
+        <div class="result-summary">
+          <div class="result-stat">
+            <div class="stat-value" id="stat-total">4</div>
+            <div class="stat-label">Total</div>
+          </div>
+          <div class="result-stat passed">
+            <div class="stat-value" id="stat-passed">3</div>
+            <div class="stat-label">Passed</div>
+          </div>
+          <div class="result-stat failed">
+            <div class="stat-value" id="stat-failed">1</div>
+            <div class="stat-label">Failed</div>
+          </div>
+          <div class="result-stat">
+            <div class="stat-value" id="stat-duration">12.4s</div>
+            <div class="stat-label">Duration</div>
+          </div>
+        </div>
+        <div class="result-table-wrapper">
+          <table class="result-table">
+            <thead>
+              <tr>
+                <th>Status</th>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Provider</th>
+                <th>Duration</th>
+              </tr>
+            </thead>
+            <tbody id="result-table-body">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Architecture -->
+  <section id="architecture" class="section">
+    <div class="container">
+      <h2>Architecture</h2>
+      <div class="arch-diagram">
+        <div class="arch-flow">
+          <div class="arch-node input">
+            <div class="arch-label">Excel</div>
+            <div class="arch-sub">testcases/*.xlsx</div>
+          </div>
+          <div class="arch-arrow">&rarr;</div>
+          <div class="arch-node process">
+            <div class="arch-label">ExcelReader</div>
+            <div class="arch-sub">xlsx parse</div>
+          </div>
+          <div class="arch-arrow">&rarr;</div>
+          <div class="arch-node process">
+            <div class="arch-label">TestCaseParser</div>
+            <div class="arch-sub">validation</div>
+          </div>
+          <div class="arch-arrow">&rarr;</div>
+          <div class="arch-node router">
+            <div class="arch-label">Router</div>
+            <div class="arch-sub">provider routing</div>
+          </div>
+        </div>
+        <div class="arch-split">
+          <div class="arch-branch">
+            <div class="arch-arrow-down">&darr;</div>
+            <div class="arch-node provider-dd">
+              <div class="arch-label">Datadog</div>
+              <div class="arch-sub">Synthetics API</div>
+            </div>
+          </div>
+          <div class="arch-branch">
+            <div class="arch-arrow-down">&darr;</div>
+            <div class="arch-node provider-pw">
+              <div class="arch-label">Playwright</div>
+              <div class="arch-sub">.spec.ts generation</div>
+            </div>
+          </div>
+        </div>
+        <div class="arch-flow">
+          <div class="arch-merge-arrow">&darr;</div>
+          <div class="arch-node output">
+            <div class="arch-label">TestRunner</div>
+            <div class="arch-sub">results collection</div>
+          </div>
+          <div class="arch-arrow">&rarr;</div>
+          <div class="arch-node result">
+            <div class="arch-label">Results</div>
+            <div class="arch-sub">JSON / screenshots</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tech Stack -->
+      <div class="tech-stack">
+        <h3>Tech Stack</h3>
+        <div class="tech-grid">
+          <div class="tech-item"><span class="tech-cat">Language</span> TypeScript</div>
+          <div class="tech-item"><span class="tech-cat">Excel</span> SheetJS (xlsx)</div>
+          <div class="tech-item"><span class="tech-cat">E2E</span> Playwright</div>
+          <div class="tech-item"><span class="tech-cat">Monitoring</span> Datadog Synthetics</div>
+          <div class="tech-item"><span class="tech-cat">CLI</span> Commander.js</div>
+          <div class="tech-item"><span class="tech-cat">AI</span> Claude API</div>
+          <div class="tech-item"><span class="tech-cat">Runtime</span> Node.js &ge; 18</div>
+          <div class="tech-item"><span class="tech-cat">Build</span> tsc</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AI Generation -->
+  <section id="ai-generation" class="section section-dark">
+    <div class="container">
+      <h2>AI Test Generation</h2>
+      <p class="section-desc">2つの手法で AI がテストケースを自動生成します。</p>
+
+      <div class="ai-methods">
+        <!-- Method A -->
+        <div class="ai-method-card">
+          <div class="method-header">
+            <h3>Method A: Site Crawling</h3>
+            <span class="method-badge ready">Available</span>
+          </div>
+          <p>URL を指定するだけで、Playwright がサイトを自動巡回。ページ構造を収集し、AI がテストケースを生成します。</p>
+          <div class="method-flow">
+            <span class="flow-step">URL</span>
+            <span class="flow-arrow">&rarr;</span>
+            <span class="flow-step">Crawl</span>
+            <span class="flow-arrow">&rarr;</span>
+            <span class="flow-step">Analyze</span>
+            <span class="flow-arrow">&rarr;</span>
+            <span class="flow-step">AI Generate</span>
+            <span class="flow-arrow">&rarr;</span>
+            <span class="flow-step">Excel</span>
+          </div>
+          <div class="method-features">
+            <div>Basic / Form 認証対応</div>
+            <div>クロール深度制御</div>
+            <div>除外パスパターン</div>
+            <div>プレビューモード</div>
+          </div>
+
+          <!-- Interactive demo for Method A -->
+          <div class="ai-demo">
+            <div class="form-group">
+              <label>Target URL</label>
+              <input type="text" id="ai-crawl-url" value="https://staging.my-app.com" placeholder="e.g. https://staging.example.com">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Max Depth</label>
+                <input type="number" id="ai-crawl-depth" value="3" min="1" max="10">
+              </div>
+              <div class="form-group">
+                <label>Max Pages</label>
+                <input type="number" id="ai-crawl-pages" value="50" min="1" max="200">
+              </div>
+            </div>
+            <button class="btn btn-primary" id="btn-ai-crawl">Run generate-case --method crawl</button>
+          </div>
+        </div>
+
+        <!-- Method B -->
+        <div class="ai-method-card">
+          <div class="method-header">
+            <h3>Method B: Repo Analysis</h3>
+            <span class="method-badge planning">Planning</span>
+          </div>
+          <p>ソースコードやリポジトリ構造を解析し、ルート定義・コンポーネント構造からテストケースを生成します。</p>
+          <div class="method-flow">
+            <span class="flow-step">Repo</span>
+            <span class="flow-arrow">&rarr;</span>
+            <span class="flow-step">Detect</span>
+            <span class="flow-arrow">&rarr;</span>
+            <span class="flow-step">Analyze</span>
+            <span class="flow-arrow">&rarr;</span>
+            <span class="flow-step">AI Generate</span>
+            <span class="flow-arrow">&rarr;</span>
+            <span class="flow-step">Excel</span>
+          </div>
+          <div class="method-features">
+            <div>Next.js / React Router / Express</div>
+            <div>コンポーネント構造解析</div>
+            <div>GitHub API 連携</div>
+            <div>セレクター候補抽出</div>
+          </div>
+
+          <!-- Interactive demo for Method B -->
+          <div class="ai-demo">
+            <div class="form-group">
+              <label>Repository Path</label>
+              <input type="text" id="ai-repo-path" value="./my-nextjs-app" placeholder="e.g. ./my-app or GitHub URL">
+            </div>
+            <div class="form-group">
+              <label>Framework</label>
+              <select id="ai-repo-framework">
+                <option value="auto">Auto Detect</option>
+                <option value="nextjs">Next.js</option>
+                <option value="react">React (CRA / Vite)</option>
+                <option value="express">Express</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" id="btn-ai-repo">Run generate-case --method repo</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Terminal -->
+      <div class="terminal ai-terminal-wrapper">
+        <div class="terminal-header">
+          <span class="terminal-dot red"></span>
+          <span class="terminal-dot yellow"></span>
+          <span class="terminal-dot green"></span>
+          <span class="terminal-title">AI Generation Output</span>
+        </div>
+        <div class="terminal-body" id="terminal-ai">
+          <div class="terminal-line dim">Click "Run generate-case" above to see the demo output.</div>
+        </div>
+      </div>
+
+      <!-- Generated Test Cases Preview -->
+      <div class="generated-preview hidden" id="generated-preview">
+        <h3>Generated Test Cases</h3>
+        <div class="excel-table-wrapper">
+          <table class="excel-table" id="generated-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Provider</th>
+                <th>Priority</th>
+                <th>Steps</th>
+              </tr>
+            </thead>
+            <tbody id="generated-table-body">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Data Flow -->
+  <section class="section">
+    <div class="container">
+      <h2>Data Flow</h2>
+      <div class="dataflow">
+        <div class="dataflow-step">
+          <div class="dataflow-num">1</div>
+          <div class="dataflow-content">
+            <h4>init</h4>
+            <p>プロジェクト初期化</p>
+            <code>taster init &lt;name&gt; --url &lt;url&gt;</code>
+          </div>
+        </div>
+        <div class="dataflow-connector"></div>
+        <div class="dataflow-step highlight">
+          <div class="dataflow-num">AI</div>
+          <div class="dataflow-content">
+            <h4>generate-case</h4>
+            <p>AI テストケース生成 (optional)</p>
+            <code>taster generate-case --method crawl</code>
+          </div>
+        </div>
+        <div class="dataflow-connector"></div>
+        <div class="dataflow-step">
+          <div class="dataflow-num">2</div>
+          <div class="dataflow-content">
+            <h4>read-case</h4>
+            <p>Excel 読み取り&登録</p>
+            <code>taster read-case --project &lt;name&gt;</code>
+          </div>
+        </div>
+        <div class="dataflow-connector"></div>
+        <div class="dataflow-step">
+          <div class="dataflow-num">3</div>
+          <div class="dataflow-content">
+            <h4>run-case</h4>
+            <p>テスト実行&結果収集</p>
+            <code>taster run-case --project &lt;name&gt;</code>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p>Taster - E2E Test Management Tool</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
